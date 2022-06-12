@@ -1,0 +1,150 @@
+## Working with data in tidyverse
+## Datacamp
+
+## lading readr, dplyr, skimr libraries
+## connecting with dataset
+## uploading the file
+
+library(readr)
+
+
+## reading baker_results.csv file
+
+bakers <- read_csv(file = "baker_results.csv", col_types = cols(age = col_number()))
+                   
+library(dplyr)   
+
+glimpse(bakers)
+
+library(skimr)
+
+skim(bakers)
+
+
+bakers_series_count <- bakers %>% group_by(series) %>% summarise(n = n())
+print(bakers_series_count)
+
+## count() to roll up level
+## not found
+
+bakers_count_roll <- bakers %>% count(aired_us, series)
+
+bakers_tamed <- bakers %>% slice(1:5)
+
+bakers_tamed
+
+glimpse(bakers_tamed)
+
+## reading desserts.csv file
+## parsing uk_airdate column
+
+desserts <- read_csv(file = "desserts.csv", show_col_types = FALSE, col_types =
+                       cols(uk_airdate = col_date(format = "%d %B %Y")))
+
+glimpse(desserts)
+
+## keeping only the number in technical column
+
+desserts <- read_csv(file = "desserts.csv", show_col_types = FALSE, col_types =
+                       cols(uk_airdate = col_date(format = "%d %B %Y"), technical = col_number()))
+
+glimpse(desserts)
+
+## view parsing problems
+
+problems(desserts)
+
+## there are seven parsing problems
+
+desserts <- read_csv(file = "desserts.csv", show_col_types = FALSE, col_types =
+                       cols(uk_airdate = col_date(format = "%d %B %Y"), technical = col_number()), 
+                     na = c("", "NA", "N/A"))
+## viewing parsing problems again
+
+problems(desserts)
+
+## no parsing problems
+
+## casting result column in factor
+
+desserts <- read_csv(file = "desserts.csv", na = c("", "NA", "N/A"), show_col_types = FALSE, col_types =
+                       cols(uk_airdate = col_date(format = "%d %B %Y"), technical = col_number(), result =
+                              col_factor(levels = NULL)))
+
+glimpse(desserts)
+
+## loading desserts_tidy
+## keeping only numbers in technical column
+
+desserts_nuts <- read_csv(file = "desserts_tidy.csv", na = c("","N/A"), show_col_types = FALSE, col_types = 
+                            cols(technical = col_number()))
+
+problems(desserts_nuts)
+## count rows grouping by nut variable
+
+desserts_nuts %>% count(nut, sort = TRUE)
+
+## edit code to recode "no code" as missing and filbert as hazelnut
+## count rows again
+
+desserts_2 <- desserts_nuts %>% 
+  mutate(nut = recode(nut, "filbert" = "hazelnut", "no nut" = NA_character_))
+
+desserts_2 %>% count(nut, sort = TRUE)
+
+## edit to recode technical column as tech_win as factor
+
+desserts_nuts <- desserts_nuts %>% mutate(tech_win = recode(technical, `1` = 1,
+                                                            .default = 0))
+
+## count to compare values
+
+desserts_nuts %>% count(technical == 1, tech_win)
+
+## loading another table ratings_messy
+
+ratings <- read_csv(file = "ratings_messy.csv", show_col_types = FALSE)
+
+ratings <- ratings %>% mutate(channel = recode_factor(channel, "1" = 0, 
+                                                      .default = 1))
+
+## recode channel as factor: bbc(1) or not(0)
+
+ratings <- ratings %>% mutate(bbc = recode_factor(channel, "1" = 0, .default = 1))
+
+## select variables to be plot
+
+ratings1 <- ratings %>% select(series, channel, bbc, avg_uk_viewers)
+
+## loading ggplot2 library
+
+library(ggplot2)
+
+## make a bar chart
+ggplot(ratings1, aes(x = series, y = avg_uk_viewers, fill = bbc)) + geom_col()
+
+
+# move channel to front and drop 7- and 28- day episode ratings
+ratings1 %>% select(channel, everything(), -ends_with("day"))
+
+
+## importing messy_ratings
+## glimpse to see variable names
+
+messy_ratings <- read_csv(file = "messy_ratings.csv", show_col_types = FALSE)
+
+glimpse(messy_ratings)
+
+
+# load janitor library
+library(janitor)
+
+# reformat to snake case
+
+ratings_clean <- messy_ratings %>% clean_names()
+
+# glimpse cleaned names
+
+
+
+glimpse(ratings_clean)
