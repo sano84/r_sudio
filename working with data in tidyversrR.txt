@@ -135,16 +135,3 @@ messy_ratings <- read_csv(file = "messy_ratings.csv", show_col_types = FALSE)
 
 glimpse(messy_ratings)
 
-
-# load janitor library
-library(janitor)
-
-# reformat to snake case
-
-ratings_clean <- messy_ratings %>% clean_names()
-
-# glimpse cleaned names
-
-
-
-glimpse(ratings_clean)
